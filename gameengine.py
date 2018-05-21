@@ -1,5 +1,6 @@
 import os
 import pygame
+import utils
 
 pygame.init()
 
@@ -24,7 +25,7 @@ class GameEngine:
 
         GameEngine.font = pygame.font.Font("resources/vgaoem.fon", 15)
         GameEngine.clock = pygame.time.Clock()
-        GameEngine.sprite_dict = {filename[:-4]: GameEngine.create_image(filename[:-4]) for filename in
+        GameEngine.sprite_dict = {filename[:-4]: utils.create_image(filename[:-4]) for filename in
                                   os.listdir('resources') if filename[-4:] == '.png'}
 
         pygame.display.set_mode((GameEngine.display_width, GameEngine.display_height))
@@ -77,10 +78,6 @@ class GameEngine:
         data_text = font.render("{0}".format(data), True, color)
         GameEngine.game_display.blit(data_text,
                                      (x - data_text.get_rect().width / 2, y - data_text.get_rect().height / 2))
-
-    @staticmethod
-    def create_image(sprite_name):
-        return pygame.image.load('resources/{0}.png'.format(sprite_name))
 
     @staticmethod
     def quit():
