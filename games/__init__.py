@@ -1,0 +1,1 @@
+from .asteroids import Asteroids
