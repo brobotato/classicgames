@@ -1,16 +1,13 @@
-import math
-import random
-
 import pygame
 
-import utils
 from gameengine import GameEngine
 from gamestate import GameState
 
-class Snake(GameState):
+
+class Menu(GameState):
 
     def __init__(self):
-        super(Snake, self).__init__()
+        super(Menu, self).__init__()
 
     def exit(self):
         pass
@@ -25,11 +22,10 @@ class Snake(GameState):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 GameEngine.quit()
-        keypresses = pygame.key.get_pressed()
 
     def update(self):
         super().update(50)
 
     def draw(self):
-        GameEngine.game_display.fill((0, 0, 0))
+        GameEngine.display_data(400, 125, "Classic Games in Python", GameEngine.font, (255, 255, 255))
         super().draw()

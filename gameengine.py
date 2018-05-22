@@ -1,5 +1,7 @@
 import os
+
 import pygame
+
 import utils
 
 pygame.init()
