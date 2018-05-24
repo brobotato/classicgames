@@ -76,6 +76,14 @@ class GameEngine:
         return GameEngine.run
 
     @staticmethod
+    def change_caption(caption):
+        pygame.display.set_caption(caption)
+
+    @staticmethod
+    def change_mode(width, height):
+        pygame.display.set_mode((width, height))
+
+    @staticmethod
     def display_data(x, y, data, font, color):
         data_text = font.render("{0}".format(data), True, color)
         GameEngine.game_display.blit(data_text,

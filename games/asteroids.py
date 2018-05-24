@@ -6,7 +6,7 @@ import pygame
 
 import utils
 from gameengine import GameEngine
-from games.menu import Menu
+import games.menu
 from gamestate import GameState
 
 
@@ -50,9 +50,10 @@ class Asteroids(GameState):
         self.asteroids = []
         self.time = 0
         self.score = 0
+        GameEngine.change_caption("Asteroids")
 
     def exit(self):
-        pass
+        GameEngine.change_caption("Classic Games in Python")
 
     def pause(self):
         pass
@@ -155,7 +156,8 @@ class Asteroids(GameState):
                                         "Your score was: " + str(self.score), GameEngine.font, (255, 255, 255))
                 super().draw()
                 time.sleep(2)
-                GameEngine.change_state(Menu())
+                self.exit()
+                GameEngine.change_state(games.menu.Menu())
         super().update(50)
 
     def draw(self):
