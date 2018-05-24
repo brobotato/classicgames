@@ -8,7 +8,7 @@ def create_image(sprite_name):
 
 
 def rot_center(image, angle):
-    loc = image.get_rect().center 
+    loc = image.get_rect().center
     rot_sprite = pygame.transform.rotate(image, angle)
     rot_sprite.get_rect().center = loc
     return rot_sprite

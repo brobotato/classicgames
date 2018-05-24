@@ -27,5 +27,6 @@ class Menu(GameState):
         super().update(50)
 
     def draw(self):
+        GameEngine.game_display.fill((0, 0, 0))
         GameEngine.display_data(400, 125, "Classic Games in Python", GameEngine.font, (255, 255, 255))
         super().draw()

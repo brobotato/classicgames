@@ -1,10 +1,12 @@
 import math
 import random
+import time
 
 import pygame
 
 import utils
 from gameengine import GameEngine
+from games.menu import Menu
 from gamestate import GameState
 
 
@@ -47,6 +49,7 @@ class Asteroids(GameState):
         self.ship = Ship(GameEngine.display_width / 2, GameEngine.display_height / 2)
         self.asteroids = []
         self.time = 0
+        self.score = 0
 
     def exit(self):
         pass
@@ -69,8 +72,8 @@ class Asteroids(GameState):
         if keypresses[pygame.K_UP] != 0:
             self.ship.acceleration = 6
         if self.ship.firing == 0 and keypresses[pygame.K_SPACE] != 0:
-            self.ship.firing = 2
-            self.ship.bullets.append(Bullet(self.ship.rect.x+15,self.ship.rect.y+17,self.ship.angle))
+            self.ship.firing = 4
+            self.ship.bullets.append(Bullet(self.ship.rect.x + 15, self.ship.rect.y + 17, self.ship.angle))
         if self.ship.warp == 0 and (keypresses[pygame.K_LSHIFT] != 0 or keypresses[pygame.K_RSHIFT] != 0):
             self.ship.warp = 20
             self.ship.rect.x = random.randint(0, GameEngine.display_width)
@@ -90,17 +93,23 @@ class Asteroids(GameState):
             self.ship.rect.y = 0
         if self.ship.rect.y < 0:
             self.ship.rect.y = GameEngine.display_height
-        if random.randint(0,100) > 95:
+        if random.randint(0, 100) > 97:
             if random.random() > 0.5:
                 if random.random() > 0.5:
-                    self.asteroids.append(Asteroid(0,random.randint(0,GameEngine.display_height),random.randint(0,360),3))
+                    self.asteroids.append(
+                        Asteroid(0, random.randint(0, GameEngine.display_height), random.randint(0, 360), 3))
                 else:
-                    self.asteroids.append(Asteroid(GameEngine.display_width,random.randint(0,GameEngine.display_height),random.randint(0,360),3))
+                    self.asteroids.append(
+                        Asteroid(GameEngine.display_width, random.randint(0, GameEngine.display_height),
+                                 random.randint(0, 360), 3))
             else:
                 if random.random() > 0.5:
-                    self.asteroids.append(Asteroid(random.randint(0,GameEngine.display_width),0,random.randint(0,360),3))
+                    self.asteroids.append(
+                        Asteroid(random.randint(0, GameEngine.display_width), 0, random.randint(0, 360), 3))
                 else:
-                    self.asteroids.append(Asteroid(random.randint(0,GameEngine.display_width),GameEngine.display_height,random.randint(0,360),3))
+                    self.asteroids.append(
+                        Asteroid(random.randint(0, GameEngine.display_width), GameEngine.display_height,
+                                 random.randint(0, 360), 3))
         for bullet in self.ship.bullets:
             bullet.rect.x -= 9 * math.sin(math.radians(bullet.angle))
             bullet.rect.y -= 9 * math.cos(math.radians(bullet.angle))
@@ -110,12 +119,24 @@ class Asteroids(GameState):
                 self.ship.bullets.remove(bullet)
             else:
                 for asteroid in self.asteroids:
-                    if abs(bullet.rect.x-asteroid.rect.x) < 12.5*asteroid.size and abs(bullet.rect.y-asteroid.rect.y) < 12.5*asteroid.size:
-                        self.asteroids.remove(asteroid)
-                        self.ship.bullets.remove(bullet)
+                    if abs(bullet.rect.x - asteroid.rect.x) < 12.5 * asteroid.size and abs(
+                            bullet.rect.y - asteroid.rect.y) < 12.5 * asteroid.size:
+                        self.score = int(self.score + 300 / asteroid.size)
+                        try:
+                            self.asteroids.remove(asteroid)
+                        except ValueError:
+                            pass
+                        try:
+                            self.ship.bullets.remove(bullet)
+                        except ValueError:
+                            pass
+                        if asteroid.size > 1:
+                            self.asteroids += [
+                                Asteroid(asteroid.rect.x, asteroid.rect.y, random.randint(0, 360), asteroid.size - 1),
+                                Asteroid(asteroid.rect.x, asteroid.rect.y, random.randint(0, 360), asteroid.size - 1)]
         for asteroid in self.asteroids:
-            asteroid.rect.x -= 6/asteroid.size * math.sin(math.radians(asteroid.angle))
-            asteroid.rect.y -= 6/asteroid.size * math.cos(math.radians(asteroid.angle))
+            asteroid.rect.x -= 4 / asteroid.size * math.sin(math.radians(asteroid.angle))
+            asteroid.rect.y -= 4 / asteroid.size * math.cos(math.radians(asteroid.angle))
             if asteroid.rect.x > GameEngine.display_width:
                 asteroid.rect.x = 0
             if asteroid.rect.x < 0:
@@ -124,6 +145,17 @@ class Asteroids(GameState):
                 asteroid.rect.y = 0
             if asteroid.rect.y < 0:
                 asteroid.rect.y = GameEngine.display_height
+            if abs(self.ship.rect.x - asteroid.rect.x) < 15 * asteroid.size and abs(
+                    self.ship.rect.y - asteroid.rect.y) < 15 * asteroid.size:
+                GameEngine.display_data(GameEngine.display_width / 2, GameEngine.display_height / 2 - 20, "Game Over!",
+                                        GameEngine.font, (255, 255, 255))
+                super().draw()
+                time.sleep(1)
+                GameEngine.display_data(GameEngine.display_width / 2, GameEngine.display_height / 2 + 20,
+                                        "Your score was: " + str(self.score), GameEngine.font, (255, 255, 255))
+                super().draw()
+                time.sleep(2)
+                GameEngine.change_state(Menu())
         super().update(50)
 
     def draw(self):
@@ -131,7 +163,10 @@ class Asteroids(GameState):
         GameEngine.game_display.blit(utils.rot_center(self.ship.image, self.ship.angle),
                                      (self.ship.rect.x, self.ship.rect.y))
         for bullet in self.ship.bullets:
-            GameEngine.game_display.blit(bullet.image,(bullet.rect.x,bullet.rect.y))
+            GameEngine.game_display.blit(bullet.image, (bullet.rect.x, bullet.rect.y))
         for asteroid in self.asteroids:
-            GameEngine.game_display.blit(pygame.transform.scale(asteroid.image,(25*asteroid.size,25*asteroid.size)),(asteroid.rect.x,asteroid.rect.y))
+            GameEngine.game_display.blit(
+                pygame.transform.scale(asteroid.image, (25 * asteroid.size, 25 * asteroid.size)),
+                (asteroid.rect.x, asteroid.rect.y))
+        GameEngine.display_data(100, 20, self.score, GameEngine.font, (255, 255, 255))
         super().draw()
